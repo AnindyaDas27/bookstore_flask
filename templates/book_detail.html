@@ -1,41 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
     <title>{{ book.title }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { font-family: Arial; margin: 40px; }
+        input, textarea { width: 300px; padding: 10px; margin: 5px 0; }
+        button { padding: 10px 20px; cursor: pointer; }
+    </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>{{ book.title }}</h1>
-    <h3>Author: {{ book.author }}</h3>
+<h1>{{ book.title }}</h1>
+<h3>Author: {{ book.author }}</h3>
 
-    <h2>Write a Review</h2>
-    <form action="/book/{{ book._id }}/add_review" method="POST">
-        <input type="text" name="name" placeholder="Your name" required><br><br>
-        <textarea name="review_text" placeholder="Write review..." required></textarea><br><br>
-        <input type="number" name="rating" min="1" max="5" placeholder="Rating (1-5)">
-        <button type="submit">Submit Review</button>
-    </form>
+<hr>
 
-    <h2>Reviews</h2>
-    {% if reviews %}
-        {% for r in reviews %}
-        <div class="review-box">
-            <strong>{{ r.name }}</strong>
-            <p>{{ r.review_text }}</p>
-            <p>Rating: {{ r.rating }}</p>
-            <a href="/delete_review/{{ r._id }}/{{ book._id }}">Delete</a>
-        </div>
-        {% endfor %}
-    {% else %}
-        <p>No reviews yet.</p>
-    {% endif %}
+<h2>Write a Review</h2>
 
-    <br>
-    <a href="/">Back to Home</a>
-</div>
+<form method="POST" action="{{ url_for('book_detail', book_id=book['_id']) }}">
+    <input type="text" name="username" placeholder="Your Name" required><br>
+    <textarea name="comment" placeholder="Write your review..." required></textarea><br>
+    <input type="number" name="rating" placeholder="Rating (1–5)" min="1" max="5" required><br>
+    <button type="submit">Submit Review</button>
+</form>
+
+<hr>
+
+<h2>Reviews</h2>
+
+{% if reviews %}
+    {% for r in reviews %}
+        <p><strong>{{ r.username }}</strong> (Rating: {{ r.rating }}/5)</p>
+        <p>{{ r.comment }}</p>
+        <hr>
+    {% endfor %}
+{% else %}
+    <p>No reviews yet.</p>
+{% endif %}
+
+<p><a href="/">Back to Home</a></p>
 
 </body>
 </html>
