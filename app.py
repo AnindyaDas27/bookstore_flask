@@ -1,16 +1,17 @@
 from flask import Flask, render_template, request, redirect, url_for
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 import os
 
 app = Flask(__name__)
 
-# MongoDB connection
-MONGO_URI = os.getenv("MONGO_URI")
-
+# --- Mongo Connection ---
+MONGO_URI = os.getenv("MONGO_URI")  # Make sure this is set in Render
 client = MongoClient(MONGO_URI)
-db = client["bookstore"]
+
+db = client["bookstore_db"]
 books_collection = db["books"]
-reviews_collection = db["reviews"]  # ✅ IMPORTANT
+reviews_collection = db["reviews"]
 
 @app.route("/")
 def home():
@@ -29,27 +30,26 @@ def add_book():
 
 @app.route("/book/<book_id>")
 def book_detail(book_id):
-    from bson.objectid import ObjectId
+    try:
+        book = books_collection.find_one({"_id": ObjectId(book_id)})
+    except:
+        return "Invalid book ID", 400
 
-    book = books_collection.find_one({"_id": ObjectId(book_id)})
-    if not book:
-        return "Book not found", 404
-
-    reviews = list(reviews_collection.find({"book_id": book_id}))
+    reviews = list(reviews_collection.find({"book_id": ObjectId(book_id)}))
 
     return render_template("book_detail.html", book=book, reviews=reviews)
 
-@app.route("/book/<book_id>/add_review", methods=["POST"])
+@app.route("/book/<book_id>/review", methods=["POST"])
 def add_review(book_id):
     name = request.form.get("name")
-    comment = request.form.get("comment")
+    review_text = request.form.get("review")
     rating = request.form.get("rating")
 
-    if name and comment and rating:
+    if name and review_text and rating:
         reviews_collection.insert_one({
-            "book_id": book_id,
+            "book_id": ObjectId(book_id),
             "name": name,
-            "comment": comment,
+            "review": review_text,
             "rating": int(rating)
         })
 
