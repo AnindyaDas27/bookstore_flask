@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ book.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>{{ book.title }}</h1>
+    <h3>Author: {{ book.author }}</h3>
+
+    <h2>Write a Review</h2>
+    <form action="/book/{{ book._id }}/add_review" method="POST">
+        <input type="text" name="name" placeholder="Your name" required><br><br>
+        <textarea name="review_text" placeholder="Write review..." required></textarea><br><br>
+        <input type="number" name="rating" min="1" max="5" placeholder="Rating (1-5)">
+        <button type="submit">Submit Review</button>
+    </form>
+
+    <h2>Reviews</h2>
+    {% if reviews %}
+        {% for r in reviews %}
+        <div class="review-box">
+            <strong>{{ r.name }}</strong>
+            <p>{{ r.review_text }}</p>
+            <p>Rating: {{ r.rating }}</p>
+            <a href="/delete_review/{{ r._id }}/{{ book._id }}">Delete</a>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No reviews yet.</p>
+    {% endif %}
+
+    <br>
+    <a href="/">Back to Home</a>
+</div>
+
+</body>
+</html>
